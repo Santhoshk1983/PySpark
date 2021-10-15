@@ -1,5 +1,6 @@
-from pyspark.sql import SparkSession
+from pyspark.sql import SparkSession,Row
 from pyspark.sql.functions import *
+from pyspark.sql.types import StructField, StructType,IntegerType
 
 spark = SparkSession.builder.appName("DataTypeApp").getOrCreate()
 
@@ -30,4 +31,37 @@ df.withColumn("serialKey",monotonically_increasing_id()).show(5)
 
 
 # String Exploration
+
+df.select(initcap(col("Description")),"Description").show(2,False)
+regex = "BLACK|WHITE|RED|GREEN|BLUE"
+df.select(regexp_replace(col("Description"),regex,"COLOR").alias("Color_Clean"),col("Description")).show(3)
+
+df.select(substring("Description",1,5),"Description").show(2,False)
+
+
+# Date-Time Exploration
+
+dateDF = spark.range(10)\
+    .withColumn("today",current_date())\
+    .withColumn("now",current_timestamp())
+
+dateDF.select(col("today"),date_add(col("today"),5),date_sub(col("today"),5)).show()
+
+dateFormat = "yyyy-dd-MM"
+formattedDate = spark.range(1).select(to_date(lit("1983-30-07"),dateFormat))
+formattedDate.show()
+
+
+# Null Exploration
+# Coalesce, ifnull, nullif, nvl, nvl2
+
+df.select(col("Description"),col("CustomerId"),coalesce(col("Description"),col("CustomerId"))).show()
+
+df.show(5,False)
+
+
+myNullSchema = StructType([StructField("DataValue",IntegerType(),True)])
+nullData = [Row(0),Row(2),Row(5),Row(None)]
+newData = spark.createDataFrame(nullData,myNullSchema)
+newData.select(isnull(col("DataValue"))).show()
 
