@@ -65,3 +65,11 @@ nullData = [Row(0),Row(2),Row(5),Row(None)]
 newData = spark.createDataFrame(nullData,myNullSchema)
 newData.select(isnull(col("DataValue"))).show()
 
+
+# Complex Type Exploration
+
+c=df.select(struct("Description", "InvoiceNo").alias("Struct_Type"))
+c.select("Struct_Type.Description").show(3)
+df.select(split(col("Description")," ").alias("array_val")).selectExpr("array_val[1]").show(3)
+df.select(create_map(col("Description"), col("InvoiceNo")).alias("complex_map")).show(2,False)
+df.select(create_map(col("Description"), col("InvoiceNo")).alias("complex_map")).selectExpr("complex_map['WHITE METAL LANTERN']").show(2)
