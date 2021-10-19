@@ -1,4 +1,5 @@
 from pyspark.sql import SparkSession
+from pyspark.sql.functions import count,countDistinct, first, last
 
 spark = SparkSession.builder.appName("aggApp").getOrCreate()
 df = spark.read.format("csv").option("inferSchema","True").option("header","True")\
@@ -9,8 +10,10 @@ print(df.count())
 
 # Simple grouping
 
-
-
+df.select("*").show(5)
+df.select(count("StockCode")).show()
+df.select(countDistinct("StockCode").alias("UniqueStockCodes")).show()
+df.select(first("StockCode"),last("StockCode")).show()
 
 # group by
 
