@@ -1,5 +1,7 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import count,countDistinct, desc, first, last,col
+from pyspark.sql import window
+from pyspark.sql.functions import count,countDistinct, desc, first, last,col,expr,to_date,dense_rank
+from pyspark.sql.window import Window, WindowSpec
 
 spark = SparkSession.builder.appName("aggApp").getOrCreate()
 df = spark.read.format("csv").option("inferSchema","True").option("header","True")\
@@ -20,11 +22,26 @@ df.select(first("StockCode"),last("StockCode")).show()
 df.groupBy("Country").agg(countDistinct("CustomerID")).withColumnRenamed("count(CustomerID)","CountOfCustomer")\
     .sort(desc("CountOfCustomer")).show(3)
 
+df.groupBy("InvoiceNo").agg(count("Quantity").alias("quan"),expr("count(Quantity)")).show(5)
+
 # Window
+spark.sql("set spark.sql.legacy.timeParserPolicy=LEGACY")
+dfDate = df.withColumn("date",to_date(col("InvoiceDate"),"MM/dd/yyyy"))
+windowSpec = Window.partitionBy("CustomerID","date").orderBy(desc("Quantity")).rowsBetween(Window.unboundedPreceding,Window.currentRow)
+purchaseDenseRank = dense_rank().over(windowSpec)
+dfDate.where("CustomerID is not null").orderBy("CustomerID")\
+    .select(col("CustomerID"),col("date"),col("Quantity"),purchaseDenseRank.alias("QuantityDesnseRank")).show(3,False)
 
 # grouping set
 
+    # Available only on Spark SQL. Can be used in Rollup for PySpark
+
+
 # roll up
 
-# cube
+dfNoNull = dfDate
+rolledUpDF = dfNoNull.rollup("Date", "Country").agg(count("InvoiceNo")).orderBy("Date")
+rolledUpDF.show()
+
+
 
