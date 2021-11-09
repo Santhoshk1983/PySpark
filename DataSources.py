@@ -41,7 +41,7 @@ dbTable = spark.read.format("jdbc")\
         .option("url","jdbc:mysql://localhost:3306/Election")\
             .option("dbtable",pushdown)\
                 .option("user","root")\
-                    .option("password","Pioneer*369").load().show()
+                    .option("password","******").load().show()
 
 #Write to DB
 
