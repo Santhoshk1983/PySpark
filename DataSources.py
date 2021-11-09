@@ -35,9 +35,15 @@ parquetFile = spark.read.format("parquet")\
 #conf = SparkConf().set("spark.jars", "/Users/santhoshkumarkannan/Downloads/mysql-connector-java-8.0.15/mysql-connector-java-8.0.15.jar")
 
 #sc = SparkContext( conf=conf)
+pushdown = "(select Year,count(1) from Constituency group by Year) a"
 dbTable = spark.read.format("jdbc")\
     .option("driver","com.mysql.jdbc.Driver")\
         .option("url","jdbc:mysql://localhost:3306/Election")\
-            .option("dbtable","Constituency")\
+            .option("dbtable",pushdown)\
                 .option("user","root")\
-                    .option("password","*****").load().show(5)
+                    .option("password","Pioneer*369").load().show()
+
+#Write to DB
+
+#Insert or Update
+
