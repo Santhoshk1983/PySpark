@@ -43,5 +43,6 @@ dfNoNull = dfDate
 rolledUpDF = dfNoNull.rollup("Date", "Country").agg(count("InvoiceNo")).orderBy("Date")
 rolledUpDF.show()
 
-
+dfNoNull = dfDate
+rolledUpDF = dfNoNull.rollup("Date","Country").agg(count("InvoiceNo")).orderBy("Date")
 
